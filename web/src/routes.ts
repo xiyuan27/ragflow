@@ -21,6 +21,7 @@ export enum Routes {
   ParsedResult = `${Chunk}${Parsed}`,
   Result = '/result',
   ResultView = `${Chunk}${Result}`,
+  SimpleHome = '/simple',
 }
 
 const routes = [
@@ -317,6 +318,17 @@ const routes = [
       {
         path: `${Routes.ProfileSetting}/prompt`,
         component: `@/pages${Routes.ProfileSetting}/prompt`,
+      },
+    ],
+  },
+  {
+    path: Routes.SimpleHome,
+    layout: false,
+    component: '@/layouts/chat-only',
+    routes: [
+      {
+        path: Routes.SimpleHome,
+        component: `@/pages${Routes.SimpleHome}`,
       },
     ],
   },

@@ -8,6 +8,8 @@ import {
 } from '@/hooks/login-hooks';
 import { useSystemConfig } from '@/hooks/system-hooks';
 import { rsaPsw } from '@/utils';
+import authorizationUtil from '@/utils/authorization-util';
+import { Routes } from '@/routes';
 import { Button, Checkbox, Form, Input } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,7 +70,12 @@ const Login = () => {
           password: rsaPassWord,
         });
         if (code === 0) {
-          navigate('/knowledge');
+          const { email } = authorizationUtil.getUserInfoObject() || {};
+          if (email === 'user2') {
+            navigate(Routes.SimpleHome);
+          } else {
+            navigate('/knowledge');
+          }
         }
       } else {
         const code = await register({

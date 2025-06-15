@@ -22,6 +22,7 @@ import { Modal, message } from 'antd';
 import DOMPurify from 'dompurify';
 import { isEmpty } from 'lodash';
 import { useCallback, useMemo, useState } from 'react';
+import authorizationUtil from '@/utils/authorization-util';
 import { useTranslation } from 'react-i18next';
 import { history } from 'umi';
 
@@ -40,6 +41,7 @@ export const useFetchUserInfo = (): ResponseGetType<IUserInfo> => {
             data.data.language as keyof typeof LanguageTranslationMap
           ],
         );
+        authorizationUtil.setUserInfo(data.data);
       }
       return data?.data ?? {};
     },

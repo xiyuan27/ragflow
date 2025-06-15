@@ -362,10 +362,20 @@ docker build --platform linux/amd64 -f Dockerfile -t infiniflow/ragflow:nightly 
    npm install
    ```
 
+   To start a minimal mock API for local testing, run:
+
+   ```bash
+   npm run mock
+   ```
+
 8. Launch frontend service:
 
    ```bash
+   # with real backend
    npm run dev
+
+   # or run the frontend with the mock API
+   npm run dev:mock
    ```
 
    _The following output confirms a successful launch of the system:_

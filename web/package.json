@@ -4,12 +4,14 @@
   "scripts": {
     "build": "umi build",
     "dev": "cross-env UMI_DEV_SERVER_COMPRESS=none umi dev",
+    "dev:mock": "cross-env MOCK=true UMI_DEV_SERVER_COMPRESS=none umi dev",
     "postinstall": "umi setup",
     "lint": "umi lint --eslint-only",
     "prepare": "cd .. && husky web/.husky",
     "setup": "umi setup",
     "start": "npm run dev",
-    "test": "jest --no-cache --coverage"
+    "test": "jest --no-cache --coverage",
+    "mock": "node mock/server.js"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,less,json}": [

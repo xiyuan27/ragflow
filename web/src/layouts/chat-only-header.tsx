@@ -8,12 +8,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Segmented, SegmentedValue } from '@/components/ui/segmented';
+import { Flex, Radio } from 'antd';
+import headerStyles from './components/header/index.less';
+import type { MouseEventHandler } from 'react';
 import { LanguageList, LanguageMap } from '@/constants/common';
 import { useChangeLanguage } from '@/hooks/logic-hooks';
-import { useNavigatePage } from '@/hooks/logic-hooks/navigate-hooks';
 import { useNavigateWithFromState } from '@/hooks/route-hook';
 import { useFetchUserInfo, useListTenant } from '@/hooks/user-setting-hooks';
+import authorizationUtil from '@/utils/authorization-util';
+import { useSearchParams } from 'umi';
 import { TenantRole } from '@/pages/user-setting/constants';
 import { Routes } from '@/routes';
 import { camelCase } from 'lodash';
@@ -30,7 +33,12 @@ export function ChatOnlyHeader() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigateWithFromState();
-  const { navigateToProfile } = useNavigatePage();
+  const [searchParams] = useSearchParams();
+
+  const handleProfileClick = useCallback(() => {
+    const simple = searchParams.get('simple') === '1' ? '?simple=1' : '';
+    navigate(`/user-setting${simple}`);
+  }, [navigate, searchParams]);
 
   const changeLanguage = useChangeLanguage();
   const { setTheme, theme } = useTheme();
@@ -38,6 +46,9 @@ export function ChatOnlyHeader() {
   const {
     data: { language = 'English', avatar, nickname },
   } = useFetchUserInfo();
+  const savedInfo = authorizationUtil.getUserInfoObject() || {};
+  const profileAvatar = avatar || savedInfo.avatar;
+  const profileName = nickname || savedInfo.name;
 
   const handleItemClick = (key: string) => () => {
     changeLanguage(key);
@@ -65,24 +76,18 @@ export function ChatOnlyHeader() {
     [t],
   );
 
-  const options = useMemo(() => {
-    return tagsData.map((tag) => {
-      const HeaderIcon = tag.icon;
-
-      return {
-        label: <span>{tag.name}</span>,
-        value: tag.path,
-      };
-    });
-  }, [tagsData]);
-
   const currentPath = useMemo(() => {
-    return tagsData.find((x) => pathname.startsWith(x.path))?.path || '/chat';
-  }, [pathname, tagsData]);
+    return tagsData.find((x) => pathname.startsWith(x.path))?.name || t('header.chat');
+  }, [pathname, tagsData, t]);
 
-  const handleChange = (path: SegmentedValue) => {
-    navigate(`${path}?simple=1` as Routes);
-  };
+  const handleChange = useCallback(
+    (path: string): MouseEventHandler =>
+      (e) => {
+        e.preventDefault();
+        navigate(`${path}?simple=1` as Routes);
+      },
+    [navigate],
+  );
 
   const handleLogoClick = useCallback(() => {
     navigate(Routes.SimpleHome);
@@ -98,7 +103,36 @@ export function ChatOnlyHeader() {
           onClick={handleLogoClick}
         />
       </div>
-      <Segmented options={options} value={currentPath} onChange={handleChange} />
+      <Radio.Group
+        buttonStyle="solid"
+        className={
+          theme === 'dark' ? headerStyles.radioGroupDark : headerStyles.radioGroup
+        }
+        value={currentPath}
+      >
+        {tagsData.map((item) => (
+          <Radio.Button
+            className={`${theme === 'dark' ? 'dark' : 'light'} first last`}
+            value={item.name}
+            key={item.name}
+          >
+            <a href={`${item.path}?simple=1`}>
+              <Flex
+                align="center"
+                gap={8}
+                onClick={handleChange(item.path)}
+                className="cursor-pointer"
+              >
+                <item.icon
+                  className={headerStyles.radioButtonIcon}
+                  stroke={item.name === currentPath ? 'black' : 'white'}
+                ></item.icon>
+                {item.name}
+              </Flex>
+            </a>
+          </Radio.Button>
+        ))}
+      </Radio.Group>
       <div className="flex items-center gap-5 text-text-badge">
         <DropdownMenu>
           <DropdownMenuTrigger>
@@ -123,10 +157,10 @@ export function ChatOnlyHeader() {
         </Button>
         <div className="relative">
           <RAGFlowAvatar
-            name={nickname}
-            avatar={avatar}
+            name={profileName}
+            avatar={profileAvatar}
             className="size-8 cursor-pointer"
-            onClick={navigateToProfile}
+            onClick={handleProfileClick}
           ></RAGFlowAvatar>
           {showBell && (
             <Badge className="h-5 w-8 absolute font-normal p-0 justify-center -right-8 -top-2 text-text-title-invert bg-gradient-to-l from-[#42D7E7] to-[#478AF5]">

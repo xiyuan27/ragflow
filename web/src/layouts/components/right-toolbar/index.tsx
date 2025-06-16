@@ -78,12 +78,6 @@ const RightToolBar = () => {
           </Space>
         </Dropdown>
         <Circle>
-          <GithubOutlined onClick={handleGithubCLick} />
-        </Circle>
-        <Circle>
-          <CircleHelp className="size-4" onClick={handleDocHelpCLick} />
-        </Circle>
-        <Circle>
           {theme === 'dark' ? (
             <MoonIcon onClick={onMoonClick} size={20} />
           ) : (

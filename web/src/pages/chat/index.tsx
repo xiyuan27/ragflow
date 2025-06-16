@@ -45,11 +45,14 @@ import { useSetSelectedRecord } from '@/hooks/logic-hooks';
 import { IDialog } from '@/interfaces/database/chat';
 import { PictureInPicture2 } from 'lucide-react';
 import styles from './index.less';
+import { useSearchParams } from 'umi';
 
 const { Text } = Typography;
 
 const Chat = () => {
   const { data: dialogList, loading: dialogLoading } = useFetchNextDialogList();
+  const [searchParams] = useSearchParams();
+  const simpleMode = searchParams.get('simple') === '1';
   const { onRemoveDialog } = useDeleteDialog();
   const { onRemoveConversation } = useDeleteConversation();
   const { handleClickDialog } = useClickDialogCard();
@@ -235,9 +238,11 @@ const Chat = () => {
     <Flex className={styles.chatWrapper}>
       <Flex className={styles.chatAppWrapper}>
         <Flex flex={1} vertical>
-          <Button type="primary" onClick={handleShowChatConfigurationModal()}>
-            {t('createAssistant')}
-          </Button>
+          {!simpleMode && (
+            <Button type="primary" onClick={handleShowChatConfigurationModal()}>
+              {t('createAssistant')}
+            </Button>
+          )}
           <Divider></Divider>
           <Flex className={styles.chatAppContent} vertical gap={10}>
             <Spin spinning={dialogLoading} wrapperClassName={styles.chatSpin}>

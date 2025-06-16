@@ -18,11 +18,12 @@ export const useGetChatSearchParams = () => {
 
 export const useClickDialogCard = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setSearchParams] = useSearchParams();
+  const [currentQueryParameters, setSearchParams] = useSearchParams();
 
-  const newQueryParameters: URLSearchParams = useMemo(() => {
-    return new URLSearchParams();
-  }, []);
+  const newQueryParameters: URLSearchParams = useMemo(
+    () => new URLSearchParams(currentQueryParameters.toString()),
+    [currentQueryParameters],
+  );
 
   const handleClickDialog = useCallback(
     (dialogId: string) => {
@@ -42,6 +43,7 @@ export const useClickDialogCard = () => {
 export const useFetchDialogList = (pureFetch = false) => {
   const { handleClickDialog } = useClickDialogCard();
   const { dialogId } = useGetChatSearchParams();
+  const [currentQueryParameters] = useSearchParams();
 
   const {
     data,
@@ -64,7 +66,11 @@ export const useFetchDialogList = (pureFetch = false) => {
               handleClickDialog(data.data[0].id);
             }
           } else {
-            history.push('/chat');
+              history.push(
+                currentQueryParameters.get('simple') === '1'
+                ? '/chat?simple=1'
+                : '/chat',
+            );
           }
         }
       }

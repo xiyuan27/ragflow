@@ -1,8 +1,9 @@
 import { Divider, Layout, theme } from 'antd';
 import React from 'react';
-import { Outlet } from 'umi';
+import { Outlet, useLocation } from 'umi';
 import '../locales/config';
 import Header from './components/header';
+import { ChatOnlyHeader } from './chat-only-header';
 
 import styles from './index.less';
 
@@ -13,10 +14,13 @@ const App: React.FC = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
+  const location = useLocation();
+  const search = new URLSearchParams(location.search);
+  const simpleMode = search.get('simple') === '1';
   return (
     <Layout className={styles.layout}>
       <Layout>
-        <Header></Header>
+        {simpleMode ? <ChatOnlyHeader /> : <Header />}
         <Divider orientationMargin={0} className={styles.divider} />
         <Content
           style={{

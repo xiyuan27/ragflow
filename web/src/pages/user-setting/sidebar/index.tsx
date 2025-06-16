@@ -6,7 +6,7 @@ import { useFetchSystemVersion } from '@/hooks/user-setting-hooks';
 import type { MenuProps } from 'antd';
 import { Flex, Menu } from 'antd';
 import React, { useEffect, useMemo } from 'react';
-import { useNavigate } from 'umi';
+import { useNavigate, useSearchParams } from 'umi';
 import {
   UserSettingBaseKey,
   UserSettingIconMap,
@@ -19,9 +19,11 @@ type MenuItem = Required<MenuProps>['items'][number];
 const SideBar = () => {
   const navigate = useNavigate();
   const pathName = useSecondPathName();
+  const [searchParams] = useSearchParams();
   const { logout } = useLogout();
   const { t } = useTranslate('setting');
   const { version, fetchSystemVersion } = useFetchSystemVersion();
+  const simple = searchParams.get('simple') === '1';
 
   useEffect(() => {
     if (location.host !== Domain) {
@@ -52,15 +54,23 @@ const SideBar = () => {
     } as MenuItem;
   }
 
-  const items: MenuItem[] = Object.values(UserSettingRouteKey).map((value) =>
-    getItem(value, value, UserSettingIconMap[value]),
-  );
+const items: MenuItem[] = useMemo(() => {
+    const keys = simple
+      ? [
+          UserSettingRouteKey.Profile,
+          UserSettingRouteKey.Password,
+          UserSettingRouteKey.Logout,
+        ]
+      : Object.values(UserSettingRouteKey);
+    return keys.map((value) => getItem(value, value, UserSettingIconMap[value]));
+  }, [simple]);
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     if (key === UserSettingRouteKey.Logout) {
       logout();
     } else {
-      navigate(`/${UserSettingBaseKey}/${key}`);
+      const simpleParam = simple ? '?simple=1' : '';
+      navigate(`/${UserSettingBaseKey}/${key}${simpleParam}`);
     }
   };
 
